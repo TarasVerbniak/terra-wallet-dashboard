@@ -1,28 +1,22 @@
 import { useWallet, WalletStatus } from "@terra-money/wallet-provider";
-import { shortenAddress } from "../../helpers";
+import { shortenText } from "../../helpers";
 import logo from "../../static/logo.svg";
 import "./style.scss";
 
 const Header = () => {
-  const {
-    status,
-    wallets,
-    connect,
-    install,
-    disconnect,
-    availableConnectTypes,
-    availableInstallTypes,
-  } = useWallet();
-  const walletNotConnected = status === WalletStatus.WALLET_NOT_CONNECTED;
-  const walletConnected = status === WalletStatus.WALLET_CONNECTED;
-  const walletConnecting = status === WalletStatus.INITIALIZING;
-  const shortenedAddress = shortenAddress(wallets?.[0]?.terraAddress || "");
+  const wallet = useWallet();
+
+  const walletNotConnected =
+    wallet.status === WalletStatus.WALLET_NOT_CONNECTED;
+  const walletConnected = wallet.status === WalletStatus.WALLET_CONNECTED;
+  const walletConnecting = wallet.status === WalletStatus.INITIALIZING;
+  const shortenedAddress = shortenText(wallet.wallets?.[0]?.terraAddress || "");
 
   const connectWallet = () => {
-    if (availableConnectTypes?.[0]) {
-      connect(availableConnectTypes?.[0]);
-    } else if (availableInstallTypes?.[0]) {
-      install(availableInstallTypes?.[0]);
+    if (wallet.availableConnectTypes?.[0]) {
+      wallet.connect(wallet.availableConnectTypes?.[0]);
+    } else if (wallet.availableInstallTypes?.[0]) {
+      wallet.install(wallet.availableInstallTypes?.[0]);
     }
   };
 
@@ -39,7 +33,7 @@ const Header = () => {
               {walletConnected && <span>{shortenedAddress}</span>}
               <button
                 className={walletConnected ? "btn-disconnect" : "btn-connect"}
-                onClick={walletConnected ? disconnect : connectWallet}
+                onClick={walletConnected ? wallet.disconnect : connectWallet}
               >
                 {walletConnected ? "Disonnect" : "Connect"}
               </button>

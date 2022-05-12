@@ -1,59 +1,24 @@
-import { useState, useEffect } from "react";
-import {
-  useWallet,
-  useLCDClient,
-  WalletStatus,
-  useConnectedWallet,
-} from "@terra-money/wallet-provider";
-import { parseBalanceString, fetchTransactions } from "../../helpers";
+import { useState, useContext } from "react";
 import GridBlock from "../GridBlock";
 import BalanceModal from "../BalanceModal";
 import arrowSvg from "../../static/arrow.svg";
+import { WalletContext } from "../../context";
 import "./style.scss";
 
 const Dashboard = () => {
-  const MAX_DISPLAYED_TRNS = 5;
-
-  const [ustBalance, setUstBalance] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [transactions, setTransactions] = useState([]);
-
-  const lcd = useLCDClient();
-  const { status } = useWallet();
-  const connectedWallet = useConnectedWallet();
-  const walletConnected = status === WalletStatus.WALLET_CONNECTED;
-
-  useEffect(() => {
-    if (connectedWallet) {
-      lcd.bank.balance(connectedWallet.walletAddress).then(([coins]) => {
-        const ustBalanceString = coins?._coins?.uusd?.toData?.()?.amount;
-        const parsedBalance = parseBalanceString(ustBalanceString);
-        setUstBalance(parsedBalance);
-      });
-
-      fetchTransactions(connectedWallet.walletAddress, MAX_DISPLAYED_TRNS).then(
-        (txns) => setTransactions(txns)
-      );
-    } else {
-      setUstBalance(null);
-      setTransactions([]);
-    }
-  }, [connectedWallet, lcd]);
-
-  const onProceed = (amount, address) => {
-    console.log("==> proceed", amount, address);
-  };
+  const wallet = useContext(WalletContext);
 
   return (
-    walletConnected && (
+    wallet.connected && (
       <div className="dashboard">
         <div className="row justify-content-md-center">
           <div className="col-md-5 col-xl-4 mb-5">
             <GridBlock title="Balance" classes="balance">
               <div className="balance__amount">
-                {ustBalance ? (
+                {wallet.ustBalance ? (
                   <>
-                    <span>{ustBalance}</span>
+                    <span>{wallet.ustBalance}</span>
                     <span>UST</span>
                   </>
                 ) : (
@@ -66,7 +31,7 @@ const Dashboard = () => {
           <div className="col-md-5 col-xl-4 offset-lg-1">
             <GridBlock title="Transactions" classes="transactions">
               <ul>
-                {transactions.map((t, i) => (
+                {wallet.transactions.map((t, i) => (
                   <li key={i}>
                     <img
                       className={
@@ -89,9 +54,8 @@ const Dashboard = () => {
         </div>
         <BalanceModal
           show={showModal}
-          balance={ustBalance}
+          balance={wallet.ustBalance}
           onHide={() => setShowModal(false)}
-          onProceed={onProceed}
         />
       </div>
     )

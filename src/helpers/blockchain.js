@@ -1,11 +1,22 @@
 import { bech32 } from "bech32";
-import { splitBalanceText } from "./text";
+import { Fee, MsgSend, MsgExecuteContract } from "@terra-money/terra.js";
+import {
+  Timeout,
+  TxFailed,
+  UserDenied,
+  CreateTxFailed,
+  TxUnspecifiedError,
+} from "@terra-money/wallet-provider";
+import { splitBalanceText, amountToUSTAmount } from "./amount";
+import { delay } from "./time";
 
 const transformTransactions = (data, address) => {
   let transactions = [];
 
   try {
     transactions = data.reduce((acc, { logs, timestamp, txhash, chainId }) => {
+      if (!logs || !logs.length) return acc;
+
       const date = timestamp.replace(/[A-Z]/g, " ");
       const txData = { txhash, chainId, date };
       const events = logs[0].events;
@@ -80,4 +91,71 @@ export const checkIfAddressIsValid = (address) => {
   } catch (error) {}
 
   return valid;
+};
+
+export const checkIfContract = async (lsd, address) => {
+  let isContract = false;
+
+  try {
+    const info = await lsd.wasm.contractInfo(address);
+    isContract = !!info.address;
+  } catch (error) {}
+
+  return isContract;
+};
+
+export const sendTransaction = async (wallet, lsd, address, amount) => {
+  // for simplicity - just hardcode fee and gas
+  // for timeout - we use it here for simplicity since it's a test project, for real life we should implement subscription to blockchain
+  const TX_WAIT_TIME = 7000;
+  const GAS_LIMIT = 1000000;
+  const FEE_AMOUNT = "250000uusd";
+  const result = { success: false, error: null, hash: null };
+
+  try {
+    const isContract = await checkIfContract(lsd, address);
+
+    const ustAmount = { uusd: amountToUSTAmount(amount) };
+    const toContractMsg = new MsgExecuteContract(
+      wallet.connectedWallet.walletAddress,
+      address,
+      { deposit_stable: {} },
+      ustAmount
+    );
+    const toAddressMsg = new MsgSend(
+      wallet.connectedWallet.walletAddress,
+      address,
+      ustAmount
+    );
+
+    const msgs = [isContract ? toContractMsg : toAddressMsg];
+    const fee = new Fee(GAS_LIMIT, FEE_AMOUNT);
+
+    const tx = await wallet.connectedWallet.post({ fee, msgs });
+
+    await delay(TX_WAIT_TIME);
+
+    wallet.updateBalances();
+
+    result.success = true;
+    result.hash = tx.result.txhash;
+  } catch (error) {
+    let newTxError = "Something went wrong";
+    if (error instanceof UserDenied) {
+      newTxError = "User Denied";
+    } else if (error instanceof CreateTxFailed) {
+      newTxError = `Create Tx Failed: ${error.message}`;
+    } else if (error instanceof TxFailed) {
+      newTxError = `Tx Failed: ${error.message}`;
+    } else if (error instanceof Timeout) {
+      newTxError = "Timeout";
+    } else if (error instanceof TxUnspecifiedError) {
+      newTxError = `Unspecified Error: ${error.message}`;
+    }
+
+    result.success = false;
+    result.error = newTxError;
+  }
+
+  return result;
 };
