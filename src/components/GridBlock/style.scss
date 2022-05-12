@@ -1,0 +1,19 @@
+.grid-block{
+    border-radius: 20px;
+    background: rgb(244, 244, 245);
+    box-shadow: rgb(218 218 222) 1px 1px 2px, rgb(255 255 255) -1px -1px 2px;
+
+    &__title {
+        font-size: 19px;
+        padding: 10px;
+        color: lightgray;
+        text-align: center;
+        background-color: black;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+    }
+
+    &__body {
+        padding: 20px 30px;
+    }
+}

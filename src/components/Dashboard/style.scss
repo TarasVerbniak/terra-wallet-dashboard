@@ -1,0 +1,98 @@
+.dashboard{
+    margin-top: 100px;
+    padding: 15px;
+
+    .balance {
+        text-align: center;
+
+        &__amount {
+            height: 50px;
+            font-size: 32px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: -0.3px;
+            color: rgb(31, 31, 31);
+
+            span:last-child {
+                margin-left: 10px;
+                font-size: 18px;
+            }
+        }
+
+        button {
+            width: 100%;
+            height: 42px;
+            padding: 0 10px;
+            min-width: 100px;
+            max-width: 1000px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            color: white;
+            background-color: black;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+        }
+    }
+
+    .transactions {
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 15px;
+            padding: 15px 5px;
+            border-bottom: 1px solid lightgray;
+
+            & > * {
+                flex: 2;
+                text-align: center;
+                
+                &:first-child{
+                    flex: 1;
+                }
+
+                &:last-child{
+                    flex: 3;
+                }
+            }
+
+            &:last-child{
+                border: 0;
+                padding: 15px 5px 0 5px;
+            }
+
+            .arrow-receive {
+                height: 17px;
+                width: 17px;
+                transform: rotate(270deg);
+                filter: invert(67%) sepia(49%) saturate(743%) hue-rotate(67deg) brightness(104%) contrast(77%);
+            }
+            
+            .arrow-spend {
+                height: 17px;
+                width: 17px;
+                transform: rotate(90deg);
+                filter: invert(17%) sepia(96%) saturate(6907%) hue-rotate(358deg) brightness(104%) contrast(113%);
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .dashboard {
+        padding: 30px;
+
+        .balance button {
+            width: 70%;
+        }
+    }
+  }
