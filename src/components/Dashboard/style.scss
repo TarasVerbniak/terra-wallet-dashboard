@@ -55,6 +55,10 @@
                 text-decoration: none;
                 border-bottom: 1px solid lightgray;
 
+                &:hover {
+                    background: rgba(0, 0, 0, 0.03);
+                }
+
                 & > * {
                     flex: 2;
                     text-align: center;
