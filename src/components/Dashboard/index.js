@@ -33,19 +33,25 @@ const Dashboard = () => {
               <ul>
                 {wallet.transactions.map((t, i) => (
                   <li key={i}>
-                    <img
-                      className={
-                        t.type === "receive" ? "arrow-receive" : "arrow-spend"
-                      }
-                      src={arrowSvg}
-                      alt="wallet arrow"
-                    />
-                    <span>{t.coin.toUpperCase()}</span>
-                    <span>{t.amount}</span>
-                    <div>
-                      <div>{t.date.split(" ")[0]}</div>
-                      <div>{t.date.split(" ")[1]}</div>
-                    </div>
+                    <a
+                      href={`https://finder.terra.money/bombay-12/tx/${t.txhash}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <img
+                        className={
+                          t.type === "receive" ? "arrow-receive" : "arrow-spend"
+                        }
+                        src={arrowSvg}
+                        alt="wallet arrow"
+                      />
+                      <span>{t.coin.toUpperCase()}</span>
+                      <span>{t.amount}</span>
+                      <div>
+                        <div>{t.date.split(" ")[0]}</div>
+                        <div>{t.date.split(" ")[1]}</div>
+                      </div>
+                    </a>
                   </li>
                 ))}
               </ul>
